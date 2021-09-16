@@ -1,0 +1,107 @@
+import React from 'react';
+import styled from 'styled-components';
+import { LabelItem } from 'components';
+import { UncontrolledTooltip } from 'reactstrap';
+import { AppSwitch } from '@coreui/react';
+import theme from 'assets/css/theme';
+
+const Switcher = styled( AppSwitch )`
+  margin-right: 10px;
+  &.switch-sm {
+     height: 18px;
+     width: 27px;
+  }
+  .switch-slider {
+     background-color: #7b7b7b;
+     display: flex;
+     align-items: center;
+     &:before {
+        width: 10px;
+        height: 10px;
+        top: initial;
+     }
+  }
+  .switch-input {
+     &:checked + .switch-slider {
+        background-color: ${ theme.commonColors.second };
+        border-color: ${ theme.commonColors.second };
+        &:before {
+           top: initial;
+           width: 10px;
+           height: 10px;
+           border-color: #fff;
+        }
+     }
+  }
+`;
+
+interface IWrapper {
+  direction: string;
+  margin?: string
+}
+
+const Wrapper = styled.div<IWrapper>`
+  display: flex;
+  flex-direction: ${ props => props.direction };
+  align-items: center;
+  margin: ${ props => props.margin || '0 0 20px 0' };
+  justify-content: flex-end;
+`;
+
+interface IProps {
+  value: boolean | number;
+  withTooltip?: boolean;
+  label?: any;
+  id?: string;
+  direction?: string;
+
+  tooltipPlacement?: string;
+  tooltipText?: string;
+  changeCallback: ( value: boolean ) => void;
+  onBlurCallback?: () => void;
+  margin?: string;
+  isDisabled?: boolean;
+}
+
+export const SwitchItem = ( props: IProps ) => {
+  const {
+     value, withTooltip, label, id, direction = 'row', tooltipPlacement = 'right', tooltipText, changeCallback,
+     margin,
+     isDisabled = false
+  } = props;
+  const tooltipID = `${ id }_tooltip`;
+  const tooltip = withTooltip && id ? (
+     <UncontrolledTooltip
+        autohide={ false }
+        placement={ tooltipPlacement as any }
+        target={ tooltipID }
+     >
+        { tooltipText }
+     </UncontrolledTooltip>
+  ) : null;
+  const labelCursorType = withTooltip ? 'help' : undefined;
+  const showLabel = label ?
+     <LabelItem htmlFor={ id }
+              id={ tooltipID }
+              isSmall={ true }
+              isBold={ false }
+              margin={ '0' }
+              cursor={ labelCursorType }>{ label }</LabelItem> : null;
+  const changeHandler = ( e: React.BaseSyntheticEvent ) => changeCallback( e.currentTarget.checked );
+
+  return (
+     <Wrapper direction={ direction } margin={ margin }>
+        { tooltip }
+        { showLabel }
+        <Switcher
+           disabled={ isDisabled }
+           variant="pill"
+           size="sm"
+           onChange={ changeHandler }
+           checked={ Boolean( value ) }
+        />
+     </Wrapper>
+  );
+}
+
+export default SwitchItem;

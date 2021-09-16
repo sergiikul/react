@@ -1,0 +1,42 @@
+import { Component } from 'react';
+import { Linking, Platform } from 'react-native';
+import { deepLinkingActions } from '../../lib';
+import { setCourseDeepLink } from '../../api/common/actions';
+import { connect } from 'react-redux';
+
+class DeepLinkActionComponent extends Component {
+ componentDidMount() {
+   if (Platform.OS === 'android') {
+     Linking.getInitialURL().then(url => this.handleOpenURL(url));
+   } else {
+     Linking.addEventListener('url', data => this.handleOpenURL(data.url));
+   }
+ }
+
+ componentWillUnmount() {
+   Linking.removeEventListener('url', this.handleOpenURL);
+ }
+
+ handleOpenURL = url => {
+   if (url) {
+     const urlParam = String(url).split('/');
+     const action = urlParam[3];
+     const param = urlParam[4];
+     if (action && param) {
+       this.props.setCourseDeepLink(true);
+       deepLinkingActions[action](param, urlParam);
+     }
+   }
+ };
+
+ render() {
+   return null;
+ }
+}
+
+export const DeepLinkAction = connect(
+ null,
+ { setCourseDeepLink },
+)(DeepLinkActionComponent);
+
+export default DeepLinkAction;
